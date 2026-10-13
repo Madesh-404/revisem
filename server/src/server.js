@@ -1,26 +1,40 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 import pool from "./db/database.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
-app.get("/api/health", async (req, res) => {
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
+
+app.get("/api/health", async (request, response) => {
   try {
     const result = await pool.query("SELECT NOW()");
-    res.json({
+
+    response.json({
       success: true,
-      message: "Connected to DB",
+      message: "REVISEM API is running",
       databaseTime: result.rows[0].now,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
+    console.error(error);
+
+    response.status(500).json({
       success: false,
-      message: "DB connection failed",
+      message: "Database connection failed",
     });
   }
 });
@@ -28,5 +42,5 @@ app.get("/api/health", async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Revisem API is running on ${PORT}`);
+  console.log(`REVISEM server running on port ${PORT}`);
 });
