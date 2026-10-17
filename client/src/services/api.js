@@ -11,7 +11,19 @@ const apiRequest = async (endpoint, options = {}) => {
     },
   });
 
-  const responseData = await response.json();
+  const responseText = await response.text();
+
+  let responseData = {};
+
+  if (responseText) {
+    try {
+      responseData = JSON.parse(responseText);
+    } catch {
+      responseData = {
+        message: responseText,
+      };
+    }
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -50,10 +62,43 @@ const logoutUser = async () => {
   });
 };
 
+// Plans API
+
+const createPlan = async (planData) => {
+  return await apiRequest("/plans", {
+    method: "POST",
+    body: JSON.stringify(planData),
+  });
+};
+
+const getPlans = async () => {
+  return await apiRequest("/plans");
+};
+
+const updatePlan = async (planId, planData) => {
+  return await apiRequest(`/plans/${encodeURIComponent(planId)}`, {
+    method: "PUT",
+    body: JSON.stringify(planData),
+  });
+};
+
+const archivePlan = async (planId) => {
+  return await apiRequest(
+    `/plans/${encodeURIComponent(planId)}/archive`,
+    {
+      method: "PATCH",
+    }
+  );
+};
+
 export {
   checkServerHealth,
   registerUser,
   loginUser,
   getCurrentUser,
   logoutUser,
+  createPlan,
+  getPlans,
+  updatePlan,
+  archivePlan,
 };

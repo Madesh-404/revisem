@@ -12,6 +12,7 @@ import { useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Plans from "./pages/Plans.jsx";
 
 const App = () => {
   const { user, isLoading } = useAuth();
@@ -51,6 +52,7 @@ const App = () => {
           path="/dashboard"
           element={<Dashboard />}
         />
+        <Route path="/plans" element={<Plans />} />
       </Route>
 
       <Route
