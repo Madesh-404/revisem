@@ -1,30 +1,69 @@
-import { useEffect, useState } from "react";
-import { checkServerHealth } from "./services/api";
+
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import { useAuth } from "./context/AuthContext";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 
 const App = () => {
-  const [serverStatus, setServerStatus] = useState("Checking...");
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        await checkServerHealth();
-        setServerStatus("Connected");
-      } catch {
-        setServerStatus("Disconnected");
-      }
-    };
-
-    checkHealth();
-  }, []);
+  if (isLoading) {
+    return <p>Loading REVISEM...</p>;
+  }
 
   return (
-    <div>
-      <h1>REVISEM</h1>
-      <p>Smart Revision Planner</p>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to={user ? "/dashboard" : "/login"}
+            replace
+          />
+        }
+      />
 
-      <p>Backend: {serverStatus}</p>
-    </div>
+      <Route
+        path="/login"
+        element={
+          user ? <Navigate to="/dashboard" replace /> : <Login />
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          user ? <Navigate to="/dashboard" replace /> : <Register />
+        }
+      />
+
+      <Route element={<ProtectedRoute />}>
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+      </Route>
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to={user ? "/dashboard" : "/login"}
+            replace
+          />
+        }
+      />
+    </Routes>
   );
-}
+};
 
 export default App;

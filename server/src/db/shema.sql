@@ -152,56 +152,6 @@ CREATE TABLE revisions (
         )
 );
 
-CREATE TABLE revisions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    topic_id UUID NOT NULL,
-
-    scheduled_date DATE NOT NULL,
-
-    status VARCHAR(20) NOT NULL DEFAULT 'SCHEDULED',
-
-    started_at TIMESTAMPTZ,
-
-    completed_at TIMESTAMPTZ,
-
-    skipped_at TIMESTAMPTZ,
-
-    performance VARCHAR(20),
-
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT fk_revisions_topic
-        FOREIGN KEY (topic_id)
-        REFERENCES topics(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT check_revision_status
-        CHECK (
-            status IN (
-                'SCHEDULED',
-                'IN_PROGRESS',
-                'COMPLETED',
-                'SKIPPED'
-            )
-        ),
-
-    CONSTRAINT check_revision_performance
-        CHECK (
-            performance IS NULL
-            OR performance IN (
-                'AGAIN',
-                'HARD',
-                'GOOD',
-                'EASY'
-            )
-        ),
-
-    CONSTRAINT unique_topic_revision_date
-        UNIQUE (topic_id, scheduled_date)
-);
 
 CREATE TABLE revision_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

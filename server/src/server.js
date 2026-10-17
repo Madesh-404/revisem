@@ -5,6 +5,10 @@ import cookieParser from "cookie-parser";
 
 import pool from "./db/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import planRoutes from "./routes/planRoutes.js";
+import subjectRoutes from "./routes/subjectRoutes.js";
+import topicRoutes from "./routes/topicRoutes.js";
+
 
 const app = express();
 
@@ -19,6 +23,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/plans", planRoutes);
+app.use("/api/subjects", subjectRoutes);
+app.use("/api/topics", topicRoutes);
 
 app.get("/api/health", async (request, response) => {
   try {
