@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans.jsx";
 import Subjects from "./pages/Subjects";
+import Topics from "./pages/Topics";
 
 const App = () => {
   const { user, isLoading } = useAuth();
@@ -38,6 +39,10 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/plans/:planId/subjects" element={<Subjects />} />
+        <Route
+          path="/plans/:planId/subjects/:subjectId/topics"
+          element={<Topics />}
+        />
       </Route>
 
       <Route

@@ -44,7 +44,7 @@
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .plans-page__create-button {
