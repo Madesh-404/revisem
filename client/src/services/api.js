@@ -1,4 +1,3 @@
-
 const API_URL = "http://localhost:5000/api";
 
 const apiRequest = async (endpoint, options = {}) => {
@@ -26,9 +25,7 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 
   if (!response.ok) {
-    throw new Error(
-      responseData.message || "Something went wrong"
-    );
+    throw new Error(responseData.message || "Something went wrong");
   }
 
   return responseData;
@@ -62,8 +59,6 @@ const logoutUser = async () => {
   });
 };
 
-// Plans API
-
 const createPlan = async (planData) => {
   return await apiRequest("/plans", {
     method: "POST",
@@ -83,13 +78,81 @@ const updatePlan = async (planId, planData) => {
 };
 
 const archivePlan = async (planId) => {
+  return await apiRequest(`/plans/${encodeURIComponent(planId)}/archive`, {
+    method: "PATCH",
+  });
+};
+
+const createSubject = async (planId, subjectData) => {
+  return await apiRequest(`/plans/${encodeURIComponent(planId)}/subjects`, {
+    method: "POST",
+    body: JSON.stringify(subjectData),
+  });
+};
+
+const getSubjects = async (planId) => {
+  return await apiRequest(`/plans/${encodeURIComponent(planId)}/subjects`);
+};
+
+const getSubject = async (subjectId) => {
+  return await apiRequest(`/subjects/${encodeURIComponent(subjectId)}`);
+};
+
+const updateSubject = async (subjectId, subjectData) => {
+  return await apiRequest(`/subjects/${encodeURIComponent(subjectId)}`, {
+    method: "PUT",
+    body: JSON.stringify(subjectData),
+  });
+};
+
+const deleteSubject = async (subjectId) => {
+  return await apiRequest(`/subjects/${encodeURIComponent(subjectId)}`, {
+    method: "DELETE",
+  });
+};
+
+
+const createTopic = async (subjectId, topicData) => {
   return await apiRequest(
-    `/plans/${encodeURIComponent(planId)}/archive`,
+    `/subjects/${encodeURIComponent(subjectId)}/topics`,
     {
-      method: "PATCH",
+      method: "POST",
+      body: JSON.stringify(topicData),
     }
   );
 };
+
+const getTopics = async (subjectId) => {
+  return await apiRequest(
+    `/subjects/${encodeURIComponent(subjectId)}/topics`
+  );
+};
+
+const getTopic = async (topicId) => {
+  return await apiRequest(
+    `/topics/${encodeURIComponent(topicId)}`
+  );
+};
+
+const updateTopic = async (topicId, topicData) => {
+  return await apiRequest(
+    `/topics/${encodeURIComponent(topicId)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(topicData),
+    }
+  );
+};
+
+const deleteTopic = async (topicId) => {
+  return await apiRequest(
+    `/topics/${encodeURIComponent(topicId)}`,
+    {
+      method: "DELETE",
+    }
+  );
+};
+
 
 export {
   checkServerHealth,
@@ -101,4 +164,14 @@ export {
   getPlans,
   updatePlan,
   archivePlan,
+  createSubject,
+  getSubjects,
+  getSubject,
+  updateSubject,
+  deleteSubject,
+  createTopic,
+  getTopics,
+  getTopic, 
+  updateTopic,
+  deleteTopic,
 };

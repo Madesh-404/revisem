@@ -1,9 +1,4 @@
-
-import {
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -13,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans.jsx";
+import Subjects from "./pages/Subjects";
 
 const App = () => {
   const { user, isLoading } = useAuth();
@@ -25,44 +21,28 @@ const App = () => {
     <Routes>
       <Route
         path="/"
-        element={
-          <Navigate
-            to={user ? "/dashboard" : "/login"}
-            replace
-          />
-        }
+        element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
       />
 
       <Route
         path="/login"
-        element={
-          user ? <Navigate to="/dashboard" replace /> : <Login />
-        }
+        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
       />
 
       <Route
         path="/register"
-        element={
-          user ? <Navigate to="/dashboard" replace /> : <Register />
-        }
+        element={user ? <Navigate to="/dashboard" replace /> : <Register />}
       />
 
       <Route element={<ProtectedRoute />}>
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plans" element={<Plans />} />
+        <Route path="/plans/:planId/subjects" element={<Subjects />} />
       </Route>
 
       <Route
         path="*"
-        element={
-          <Navigate
-            to={user ? "/dashboard" : "/login"}
-            replace
-          />
-        }
+        element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
       />
     </Routes>
   );
