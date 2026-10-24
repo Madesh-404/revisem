@@ -1,6 +1,10 @@
 
 import pool from "../db/database.js";
 
+import {
+  getInitialRevisionDate,
+} from "./revisionSchedulingService.js";
+
 const createTopic = async (userId, subjectId, topicData) => {
   const {
     name,
@@ -10,49 +14,100 @@ const createTopic = async (userId, subjectId, topicData) => {
     durationMinutes,
   } = topicData;
 
-  const result = await pool.query(
-    `INSERT INTO topics (
-       subject_id,
-       name,
-       description,
-       difficulty,
-       priority,
-       duration_minutes
-     )
-     SELECT
-       subjects.id,
-       $3,
-       $4,
-       $5,
-       $6,
-       $7
-     FROM subjects
-     INNER JOIN plans ON plans.id = subjects.plan_id
-     WHERE subjects.id = $1
-       AND plans.user_id = $2
-       AND plans.status = 'ACTIVE'
-     RETURNING
-       id,
-       subject_id,
-       name,
-       description,
-       difficulty,
-       priority,
-       duration_minutes,
-       created_at,
-       updated_at`,
-    [
-      subjectId,
-      userId,
-      name.trim(),
-      description?.trim() || null,
-      difficulty,
-      priority,
-      durationMinutes,
-    ]
-  );
+  const client = await pool.connect();
 
-  return result.rows[0] || null;
+  try {
+    await client.query("BEGIN");
+
+    // Step 1: Create the topic only if the user owns
+    // its subject's plan and that plan is active.
+    const topicResult = await client.query(
+      `INSERT INTO topics (
+         subject_id,
+         name,
+         description,
+         difficulty,
+         priority,
+         duration_minutes
+       )
+       SELECT
+         subjects.id,
+         $3,
+         $4,
+         $5,
+         $6,
+         $7
+       FROM subjects
+       INNER JOIN plans ON plans.id = subjects.plan_id
+       WHERE subjects.id = $1
+         AND plans.user_id = $2
+         AND plans.status = 'ACTIVE'
+       RETURNING
+         id,
+         subject_id,
+         name,
+         description,
+         difficulty,
+         priority,
+         duration_minutes,
+         created_at,
+         updated_at`,
+      [
+        subjectId,
+        userId,
+        name.trim(),
+        description?.trim() || null,
+        difficulty,
+        priority,
+        durationMinutes,
+      ]
+    );
+
+    const topic = topicResult.rows[0];
+
+    // No topic was created if the subject is inaccessible
+    // or its plan is not active.
+    if (!topic) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    // Step 2: Get today's date from PostgreSQL.
+    const dateResult = await client.query(
+      "SELECT CURRENT_DATE::text AS today"
+    );
+
+    const today = dateResult.rows[0].today;
+
+    // Step 3: Schedule the first revision for tomorrow.
+    const firstRevisionDate = getInitialRevisionDate(today);
+
+    await client.query(
+      `INSERT INTO revisions (
+         topic_id,
+         scheduled_date,
+         status
+       )
+       VALUES ($1, $2, 'SCHEDULED')
+       ON CONFLICT (topic_id, scheduled_date) DO NOTHING`,
+      [topic.id, firstRevisionDate]
+    );
+
+    // Step 4: Save both the topic and its first revision.
+    await client.query("COMMIT");
+
+    return topic;
+  } catch (error) {
+    try {
+      await client.query("ROLLBACK");
+    } catch (rollbackError) {
+      console.error("Transaction rollback failed:", rollbackError);
+    }
+
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 const getTopicsBySubject = async (userId, subjectId) => {

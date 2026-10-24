@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Plans from "./pages/Plans.jsx";
 import Subjects from "./pages/Subjects";
 import Topics from "./pages/Topics";
+import Revisions from "./pages/Revisions.jsx";
 
 const App = () => {
   const { user, isLoading } = useAuth();
@@ -43,6 +44,7 @@ const App = () => {
           path="/plans/:planId/subjects/:subjectId/topics"
           element={<Topics />}
         />
+        <Route path="/revisions" element={<Revisions />} />
       </Route>
 
       <Route

@@ -154,6 +154,53 @@ const deleteTopic = async (topicId) => {
 };
 
 
+const getTodayRevisions = async () => {
+  return await apiRequest("/revisions/today");
+};
+
+const getUpcomingRevisions = async () => {
+  return await apiRequest("/revisions/upcoming");
+};
+
+const getOverdueRevisions = async () => {
+  return await apiRequest("/revisions/overdue");
+};
+
+const startRevision = async (revisionId) => {
+  return await apiRequest(
+    `/revisions/${encodeURIComponent(revisionId)}/start`,
+    {
+      method: "PATCH",
+    }
+  );
+};
+
+const completeRevision = async (revisionId, performance) => {
+  return await apiRequest(
+    `/revisions/${encodeURIComponent(revisionId)}/complete`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ performance }),
+    }
+  );
+};
+
+const skipRevision = async (revisionId) => {
+  return await apiRequest(
+    `/revisions/${encodeURIComponent(revisionId)}/skip`,
+    {
+      method: "PATCH",
+    }
+  );
+};
+
+
+const getDashboardSummary = async () => {
+  return await apiRequest("/dashboard/summary");
+};
+
+
+
 export {
   checkServerHealth,
   registerUser,
@@ -174,4 +221,11 @@ export {
   getTopic, 
   updateTopic,
   deleteTopic,
+  getTodayRevisions,
+  getUpcomingRevisions,
+  getOverdueRevisions,
+  startRevision,
+  completeRevision,
+  skipRevision,
+  getDashboardSummary,
 };
